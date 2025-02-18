@@ -1,9 +1,16 @@
+"use client"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 export default function Footer() {
   const date = new Date();
   const year = date.getFullYear();
+  const [region, setRegion] = useState("");
+  const handleRegionChange = (e) => {
+    setRegion(e.target.value);
+    localStorage.setItem("region", e.target.value);
+  };
   return (
     <footer className="bg-gray-100 mt-10">
       <div className="container mx-auto px-4 py-8">
@@ -78,6 +85,13 @@ export default function Footer() {
               <Button className="bg-red-600 text-white rounded-md">Subscribe</Button>
             </div>
           </div>
+        </div>
+        <div>
+          <select name="Region" title="one" value={region} onChange={handleRegionChange}>
+            <option value="IN">India</option>
+            <option value="US" >US</option>
+            <option value="EU">Europe</option>
+          </select>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-500">
           <p>&copy; {year} RT. All rights reserved.</p>

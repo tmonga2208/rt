@@ -5,6 +5,7 @@ import Footer from "./components/Footer"
 import { AuthProvider } from "./contexts/AuthContext"
 import type React from "react"
 import { CartProvider } from "./contexts/cart-provider"
+import { RegionProvider } from "./contexts/RegionContext"
 
 const inter = Inter({ subsets: ["latin"] })
 const teko = Teko({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-teko" })
@@ -23,11 +24,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${teko.variable}`}>
         <AuthProvider>
+          <RegionProvider>
           <CartProvider>
           <Header />
           <main>{children}</main>
             <Footer />
-          </CartProvider>
+            </CartProvider>
+            </RegionProvider>
         </AuthProvider>
       </body>
     </html>

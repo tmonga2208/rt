@@ -1,8 +1,13 @@
+"use client"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useRegion } from "./contexts/RegionContext"
 
 export default function Home() {
+  const { getPrice } = useRegion();
+  const { price ,currency } = getPrice(29.99);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <section className="mb-12">
@@ -28,7 +33,7 @@ export default function Home() {
               <Image src="/placeholder.svg" alt={category} layout="fill" objectFit="cover" className="rounded-lg" />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
                 <Button asChild variant="outline">
-                  <Link href={`/category/${category.toLowerCase()}`} className="text-white">
+                  <Link href={`/category/${category.toLowerCase()}`} className="text-black">
                     {category}
                   </Link>
                 </Button>
@@ -51,7 +56,7 @@ export default function Home() {
                 className="w-full h-48 object-cover mb-4"
               />
               <h3 className="font-semibold mb-2">Product {id}</h3>
-              <p className="text-gray-600 mb-4">$29.99</p>
+              <p className="text-gray-600 mb-4">{currency} {price}</p>
               <Button asChild className="w-full">
                 <Link href={`/product/${id}`}>View Product</Link>
               </Button>

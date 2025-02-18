@@ -67,9 +67,7 @@ export default function Header() {
             <User className="h-5 w-5" />
             <span className="sr-only">Account</span>
           </Button>
-          <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
           <CartDropdown/>
-        </Button>
           {user ? (
             <Button variant="ghost" onClick={handleSignOut}>
               Sign Out

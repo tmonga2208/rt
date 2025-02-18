@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useRegion } from "../contexts/RegionContext"
 
 interface ProductGridProps {
   category: string
@@ -14,6 +15,7 @@ const dummyProducts = [
 ]
 
 export default function ProductGrid({ category }: ProductGridProps) {
+  const { getPrice } = useRegion();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {dummyProducts.map((product) => (
@@ -26,7 +28,7 @@ export default function ProductGrid({ category }: ProductGridProps) {
             className="w-full h-48 object-cover mb-4"
           />
           <h3 className="font-semibold mb-2">{product.name}</h3>
-          <p className="text-gray-600 mb-4">${product.price.toFixed(2)}</p>
+          <p className="text-gray-600 mb-4">{getPrice(Number(product.price)).price}</p>
           <Button asChild className="w-full">
             <Link href={`/product/${product.id}`}>View Product</Link>
           </Button>

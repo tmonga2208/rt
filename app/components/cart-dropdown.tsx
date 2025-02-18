@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useCart } from "../contexts/cart-provider"
 import Image from "next/image"
+import { handleCheckout } from "../utils/checkout"
 
 export function CartDropdown() {
   const { state, removeItem, updateQuantity, toggleCart } = useCart()
@@ -68,7 +69,7 @@ export function CartDropdown() {
               <span className="font-medium">Total:</span>
               <span className="font-medium">${totalPrice.toFixed(2)}</span>
             </div>
-            <Button className="w-full">Checkout</Button>
+            <Button onClick={handleCheckout} className="w-full">Checkout</Button>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-[50vh]">

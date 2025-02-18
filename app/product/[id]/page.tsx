@@ -11,10 +11,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CartDropdown } from "../../components/cart-dropdown"
 import { useCart } from "../../contexts/cart-provider"
+import { useRegion } from "@/app/contexts/RegionContext"
 
 export default function ProductPage() {
   const { addItem } = useCart()
-  const [quantity, setQuantity] = useState(1)
+    const [quantity, setQuantity] = useState(1)
+  const { getPrice } = useRegion();
 
   const product = {
     id: "1",
@@ -22,6 +24,8 @@ export default function ProductPage() {
     price: 29.99,
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PR7OOPaFmnkwUXbV371F3tnrTpRhkx.png",
   }
+
+  const { price, currency } = getPrice(product.price);
 
   const handleAddToCart = () => {
     addItem({
@@ -35,11 +39,6 @@ export default function ProductPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Add CartDropdown to the header */}
-      <div className="flex justify-end mb-4">
-        <CartDropdown />
-      </div>
-
       {/* Product Header */}
       <div className="grid lg:grid-cols-2 gap-8 mb-8">
         {/* Product Images */}
@@ -85,7 +84,7 @@ export default function ProductPage() {
           </div>
 
           <div className="space-y-2">
-            <div className="text-3xl font-bold">$29.99</div>
+            <div className="text-3xl font-bold">{currency} {price}</div>
             <Badge variant="secondary">New Arrival</Badge>
           </div>
 
@@ -201,7 +200,7 @@ export default function ProductPage() {
                 </div>
                 <h3 className="font-medium mb-2">Related Product {i + 1}</h3>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold">$24.99</span>
+                          <span className="font-bold">{currency} {Math.floor(price)}</span>
                   <Button variant="outline" size="sm">
                     View
                   </Button>
