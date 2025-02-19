@@ -1,9 +1,11 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 import { Star, ShoppingCart, Heart, Share2, Plus, Minus } from "lucide-react"
-
+import { collection, doc, getDoc } from "firebase/firestore"
+import { db } from "../../lib/firebase"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -14,28 +16,52 @@ import { useCart } from "../../contexts/cart-provider"
 import { useRegion } from "@/app/contexts/RegionContext"
 
 export default function ProductPage() {
-  const { addItem } = useCart()
-    const [quantity, setQuantity] = useState(1)
-  const { getPrice } = useRegion();
+  interface Product {
+    id: string;
+    name: string;
+    price: number;
+    imgURL: string;
+  }
 
-  const product = {
-    id: "1",
-    name: "Premium Lifestyle Product",
-    price: 29.99,
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PR7OOPaFmnkwUXbV371F3tnrTpRhkx.png",
+  const [product, setProduct] = useState<Product | null>(null);
+  const { addItem } = useCart()
+  const [quantity, setQuantity] = useState(1)
+  const { getPrice } = useRegion();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      const fetchProduct = async () => {
+        const docRef = doc(db, "products", id as string);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setProduct({ id: docSnap.id, name: data.name, price: data.price, imgURL: data.imgURL });
+        } else {
+          console.log("No such document!");
+        }
+      };
+      fetchProduct();
+    }
+  }, [id]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.imgURL,
+        quantity: quantity,
+      })
+    }
+  }
+
+  if (!product) {
+    return <div>Loading...</div>;
   }
 
   const { price, currency } = getPrice(product.price);
-
-  const handleAddToCart = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: quantity,
-    })
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -45,7 +71,7 @@ export default function ProductPage() {
         <div className="space-y-4">
           <div className="aspect-square relative overflow-hidden rounded-lg">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PR7OOPaFmnkwUXbV371F3tnrTpRhkx.png"
+              src={product.imgURL}
               alt="Product image"
               fill
               className="object-cover"
@@ -59,7 +85,7 @@ export default function ProductPage() {
                 className="aspect-square relative rounded-lg overflow-hidden border cursor-pointer hover:border-primary"
               >
                 <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PR7OOPaFmnkwUXbV371F3tnrTpRhkx.png"
+                  src={product.imgURL}
                   alt={`Product thumbnail ${i + 1}`}
                   fill
                   className="object-cover"
@@ -72,7 +98,7 @@ export default function ProductPage() {
         {/* Product Info */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Premium Lifestyle Product</h1>
+            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <div className="flex items-center gap-4">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
@@ -200,7 +226,7 @@ export default function ProductPage() {
                 </div>
                 <h3 className="font-medium mb-2">Related Product {i + 1}</h3>
                 <div className="flex items-center justify-between">
-                          <span className="font-bold">{currency} {Math.floor(price)}</span>
+                  <span className="font-bold">{currency} {Math.floor(price)}</span>
                   <Button variant="outline" size="sm">
                     View
                   </Button>
@@ -213,4 +239,3 @@ export default function ProductPage() {
     </div>
   )
 }
-

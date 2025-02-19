@@ -1,39 +1,57 @@
 "use client"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
+import { collection, getDocs } from "firebase/firestore"
+import { db } from "./lib/firebase"
 
 export default function Home() {  
+  interface Product {
+    id: string;
+    name: string;
+    image: string;
+    price: number;
+  }
+
+  const [product, setProduct] = useState<Product[]>([]);
   const categories = [
     { id: 1, name: "Women", image: "https://images.unsplash.com/photo-1580910532870-552653d9aa1b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
     { id: 2, name: "Men", image: "https://plus.unsplash.com/premium_photo-1683140423200-586f61ea8b38?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
     { id: 3, name: "Kids", image: "https://plus.unsplash.com/premium_photo-1723773698711-50ffbe19b222?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   ];
 
-  const products = [
-    { id: 1, name: "Product 1", image: "/placeholder.svg" },
-    { id: 2, name: "Product 2", image: "/placeholder.svg" },
-    { id: 3, name: "Product 3", image: "/placeholder.svg" },
-    { id: 4, name: "Product 4", image: "/placeholder.svg" },
-    { id: 5, name: "Product 5", image: "/placeholder.svg" },
-    { id: 6, name: "Product 6", image: "/placeholder.svg" },
-  ];
+   useEffect(() => {
+    const fetchProducts = async () => {
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const productsData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          image: data.imgURL,
+          price: data.price,
+        };
+      });
+      setProduct(productsData);
+    };
 
+    fetchProducts();
+  }, []);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const itemsPerSlide = 5;
+  const itemsPerSlide = 4;
 
   const handleNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % Math.ceil(products.length / itemsPerSlide));
+    setCurrentSlide((prev) => (prev + 1) % Math.ceil(product.length / itemsPerSlide));
   };
 
   const handlePrev = () => {
-    setCurrentSlide((prev) => (prev - 1 + Math.ceil(products.length / itemsPerSlide)) % Math.ceil(products.length / itemsPerSlide));
+    setCurrentSlide((prev) => (prev - 1 + Math.ceil(product.length / itemsPerSlide)) % Math.ceil(product.length / itemsPerSlide));
   };
 
   const startIndex = currentSlide * itemsPerSlide;
   const endIndex = startIndex + itemsPerSlide;
-  const currentProducts = products.slice(startIndex, endIndex);
+  const currentProducts = product.slice(startIndex, endIndex);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -54,7 +72,7 @@ export default function Home() {
 
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-6 font-teko">Featured Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {categories.map((category) => (
             <div key={category.id} className="relative h-64">
               <Image src={category.image} alt={category.name} layout="fill" objectFit="cover" className="rounded-lg" />
@@ -70,7 +88,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="w-full">
+      <section className="w-full relative">
         <h2 className="text-3xl font-bold mb-6 font-teko">New Arrivals</h2>
         <div className="flex">
           <div className="relative flex justify-center items-center m-2">
@@ -78,7 +96,7 @@ export default function Home() {
               &lt;
             </Button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {currentProducts.map((product) => (
               <div key={product.id} className="border rounded-lg p-4">
                 <Image

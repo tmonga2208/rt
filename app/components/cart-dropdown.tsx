@@ -7,11 +7,14 @@ import { useCart } from "../contexts/cart-provider"
 import Image from "next/image"
 import { handleCheckout } from "../utils/checkout"
 import Script from "next/script"
+import { useRegion } from "../contexts/RegionContext"
 
 export function CartDropdown() {
   const { state, removeItem, updateQuantity, toggleCart } = useCart()
+  const { getPrice } = useRegion();
+  const currency = localStorage.getItem("region") === 'IN' ? '₹' : '$';
   const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
-  const totalPrice = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const totalPrice = state.items.reduce((sum, item) => sum + getPrice(item.price).price * item.quantity, 0)
 
   return (
     <Sheet open={state.isOpen} onOpenChange={toggleCart}>
@@ -30,47 +33,50 @@ export function CartDropdown() {
           <SheetTitle>Shopping Cart ({totalItems} items)</SheetTitle>
         </SheetHeader>
         <div className="mt-8 space-y-4">
-          {state.items.map((item) => (
-            <div key={item.id} className="flex items-center gap-4 border-b pb-4">
-              <div className="relative w-20 h-20">
-                <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover rounded" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium">{item.name}</h3>
-                <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <span className="w-8 text-center">{item.quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
+          {state.items.map((item) => {
+            const { price, currency } = getPrice(item.price);
+            return (
+              <div key={item.id} className="flex items-center gap-4 border-b pb-4">
+                <div className="relative w-20 h-20">
+                  <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover rounded" />
                 </div>
+                <div className="flex-1">
+                  <h3 className="font-medium">{item.name}</h3>
+                  <p className="text-sm text-muted-foreground">{currency} {price}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <span className="w-8 text-center">{item.quantity}</span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {state.items.length > 0 ? (
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-background">
             <div className="flex justify-between mb-4">
               <span className="font-medium">Total:</span>
-              <span className="font-medium">${totalPrice.toFixed(2)}</span>
+              <span className="font-medium">{currency}{totalPrice.toFixed(2)}</span>
             </div>
-            <Button onClick={(e) => handleCheckout(e, totalPrice, 'USD', 'Customer Name', 'customer@example.com')} className="w-full">Checkout</Button>
+            <Button onClick={(e) => handleCheckout(e, totalPrice, 'INR', 'Customer Name', 'customer@example.com')} className="w-full">Checkout</Button>
             <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js"/>
           </div>
         ) : (
