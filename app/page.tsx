@@ -5,13 +5,15 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "./lib/firebase"
+import { useRegion } from "./contexts/RegionContext"
 
 export default function Home() {  
+  const { getPrice } = useRegion();
   interface Product {
     id: string;
     name: string;
     image: string;
-    price: number;
+    price: { price: number; currency: string };
   }
 
   const [product, setProduct] = useState<Product[]>([]);
@@ -30,7 +32,7 @@ export default function Home() {
           id: doc.id,
           name: data.name,
           image: data.imgURL,
-          price: data.price,
+          price: getPrice(data.price),
         };
       });
       setProduct(productsData);
@@ -52,7 +54,7 @@ export default function Home() {
   const startIndex = currentSlide * itemsPerSlide;
   const endIndex = startIndex + itemsPerSlide;
   const currentProducts = product.slice(startIndex, endIndex);
-
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <section className="mb-12">
@@ -107,7 +109,7 @@ export default function Home() {
                   className="w-full h-48 object-cover mb-4"
                 />
                 <h3 className="font-semibold mb-2">{product.name}</h3>
-                <p className="text-gray-600 mb-4">29.99</p>
+                <p className="text-gray-600 mb-4">{product.price.currency}{product.price.price}</p>
                 <Button asChild className="w-full">
                   <Link href={`/product/${product.id}`}>View Product</Link>
                 </Button>
