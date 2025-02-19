@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useCart } from "../contexts/cart-provider"
 import Image from "next/image"
 import { handleCheckout } from "../utils/checkout"
+import Script from "next/script"
 
 export function CartDropdown() {
   const { state, removeItem, updateQuantity, toggleCart } = useCart()
@@ -69,7 +70,8 @@ export function CartDropdown() {
               <span className="font-medium">Total:</span>
               <span className="font-medium">${totalPrice.toFixed(2)}</span>
             </div>
-            <Button onClick={handleCheckout} className="w-full">Checkout</Button>
+            <Button onClick={(e) => handleCheckout(e, totalPrice, 'USD', 'Customer Name', 'customer@example.com')} className="w-full">Checkout</Button>
+            <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js"/>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-[50vh]">

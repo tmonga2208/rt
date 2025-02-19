@@ -3,12 +3,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { useRegion } from "./contexts/RegionContext"
 
-export default function Home() {
-  const { getPrice } = useRegion();
-  const { price, currency } = getPrice(29.99);
-  
+export default function Home() {  
   const categories = [
     { id: 1, name: "Women", image: "https://images.unsplash.com/photo-1580910532870-552653d9aa1b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
     { id: 2, name: "Men", image: "https://plus.unsplash.com/premium_photo-1683140423200-586f61ea8b38?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
@@ -25,7 +21,7 @@ export default function Home() {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
-  const itemsPerSlide = 4;
+  const itemsPerSlide = 5;
 
   const handleNext = () => {
     setCurrentSlide((prev) => (prev + 1) % Math.ceil(products.length / itemsPerSlide));
@@ -58,7 +54,7 @@ export default function Home() {
 
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-6 font-teko">Featured Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {categories.map((category) => (
             <div key={category.id} className="relative h-64">
               <Image src={category.image} alt={category.name} layout="fill" objectFit="cover" className="rounded-lg" />
@@ -74,10 +70,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section>
+      <section className="w-full">
         <h2 className="text-3xl font-bold mb-6 font-teko">New Arrivals</h2>
-        <div className="relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="flex">
+          <div className="relative flex justify-center items-center m-2">
+            <Button onClick={handlePrev} variant="ghost" size="icon">
+              &lt;
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {currentProducts.map((product) => (
               <div key={product.id} className="border rounded-lg p-4">
                 <Image
@@ -88,19 +89,14 @@ export default function Home() {
                   className="w-full h-48 object-cover mb-4"
                 />
                 <h3 className="font-semibold mb-2">{product.name}</h3>
-                <p className="text-gray-600 mb-4">{currency} {price}</p>
+                <p className="text-gray-600 mb-4">29.99</p>
                 <Button asChild className="w-full">
                   <Link href={`/product/${product.id}`}>View Product</Link>
                 </Button>
               </div>
             ))}
           </div>
-             <div className="relative">
-            <Button onClick={handlePrev} variant="ghost" size="icon">
-              &lt;
-            </Button>
-          </div>
-          <div className="relative">
+          <div className="relative flex justify-center items-center m-2">
             <Button onClick={handleNext} variant="ghost" size="icon">
               &gt;
             </Button>
