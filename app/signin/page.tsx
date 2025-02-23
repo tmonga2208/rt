@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "../lib/firebase"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,19 @@ export default function SignIn() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const router = useRouter()
+  const router = useRouter();
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      router.push("/")
+      if (user?.emailVerified) {
+        await signInWithEmailAndPassword(auth, email, password)
+        router.push("/")
+      } else { 
+        router.push("/verify")
+      }
     } catch (error) {
       setError("Failed To Sign In")
       console.error(error)

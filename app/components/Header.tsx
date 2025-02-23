@@ -11,15 +11,31 @@ import { auth } from "../lib/firebase"
 import { useRouter } from "next/navigation"
 import { useCart } from "../contexts/cart-provider"
 import { CartDropdown } from "./cart-dropdown"
+import { collection, getDocs, query, where } from "firebase/firestore"
+import { db } from "../lib/firebase"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter();
   const { state } = useCart()
-  const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
+  const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ id: string; }[]>([])
 
   const handleUserNav = () => {
-      router.push("/user")
+      router.push("/my-account")
+  }
+
+  const handleSearch = async () => {
+    try {
+      const q = query(collection(db, "products"), where("name", "==", searchQuery))
+      const querySnapshot = await getDocs(q)
+      const results = querySnapshot.docs.map((doc) => ({ id: doc.id }))
+      setSearchResults(results)
+      console.log(results)
+    } catch (error) {
+      console.error("Error searching:", error)
+    }
   }
 
   const { user } = useAuth()
@@ -58,8 +74,8 @@ export default function Header() {
           </ul>
         </nav>
         <div className="flex items-center space-x-4">
-          <Input type="search" placeholder="Search..." className="hidden md:block" />
-          <Button variant="ghost" size="icon">
+          <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} id="Search" type="search" placeholder="Search..." className="hidden md:block" />
+          <Button onClick={handleSearch} variant="ghost" size="icon">
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>

@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword, validatePassword } from "firebase/auth"
 import { auth } from "../lib/firebase"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function SignUp() {
   const [email, setEmail] = useState("")
@@ -25,9 +26,9 @@ export default function SignUp() {
     }
     try {
       await createUserWithEmailAndPassword(auth, email, password)
-      router.push("/")
+      router.push("/verify")
     } catch (error) {
-      setError("Failed To Create An Account")
+      setError(`Failed To Create An Account : ${error}`)
       console.error(error)
     }
   }
@@ -58,6 +59,10 @@ export default function SignUp() {
           Sign Up
         </Button>
       </form>
+      <div  className="flex flex-col items-center justify-center mt-4 mb-4">
+        <p>--OR--</p>
+        <Button className="mt-2"><Link href="/signin">Sign In</Link></Button>
+      </div>
     </div>
   )
 }

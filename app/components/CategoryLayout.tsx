@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import type React from "react" // Added import for React
+import type React from "react" 
 
 interface CategoryLayoutProps {
   title: string

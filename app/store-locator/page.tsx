@@ -4,11 +4,10 @@ export default function StoreLocator() {
       <h1 className="text-4xl font-bold mb-6 font-teko">Store Locator</h1>
       <p className="mb-4">Find a store near you:</p>
       <ul className="list-disc pl-6">
-        <li>New York City: 123 Fashion Ave, New York, NY 10001</li>
-        <li>Los Angeles: 456 Style Blvd, Los Angeles, CA 90001</li>
-        <li>Chicago: 789 Trend St, Chicago, IL 60601</li>
+        <li>Mumbai: 123 Fashion Street, Mumbai, Maharashtra 400001</li>
+        <li>Delhi: 456 Style Avenue, Connaught Place, New Delhi 110001</li>
+        <li>Bengaluru: 789 Trend Road, Koramangala, Bengaluru, Karnataka 560034</li>
       </ul>
     </div>
-  )
+  );
 }
-

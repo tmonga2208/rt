@@ -10,7 +10,7 @@ interface RegionContextType {
 const RegionContext = createContext<RegionContextType | undefined>(undefined);
 
 export const RegionProvider = ({ children }: { children: ReactNode }) => {
-    const [region, setRegion] = useState("");
+    const [region, setRegion] = useState("IN");
     useEffect(() => {
         const storedRegion = localStorage.getItem("region");
         if (storedRegion) {

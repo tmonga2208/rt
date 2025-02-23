@@ -3,7 +3,7 @@ export default function About() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-6 font-teko">About Us</h1>
       <p className="mb-4">
-        Welcome to our H&M clone! We are a fashion company committed to bringing you the latest trends and styles at
+        Welcome to RT! We are a fashion company committed to bringing you the latest trends and styles at
         affordable prices.
       </p>
       <p>

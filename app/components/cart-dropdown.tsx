@@ -8,18 +8,23 @@ import Image from "next/image"
 import { handleCheckout } from "../utils/checkout"
 import Script from "next/script"
 import { useRegion } from "../contexts/RegionContext"
+import { useEffect, useState } from "react"
 
 export function CartDropdown() {
   const { state, removeItem, updateQuantity, toggleCart } = useCart()
+  const [currency, setCurrency] = useState('INR');
   const { getPrice } = useRegion();
-  const currency = localStorage.getItem("region") === 'IN' ? '₹' : '$';
   const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = state.items.reduce((sum, item) => sum + getPrice(item.price).price * item.quantity, 0)
+  useEffect(() => { 
+    const newCurrency = localStorage.getItem("region") === 'IN' ? '₹' : '$';
+    setCurrency(newCurrency);
+  }, []);
 
   return (
     <Sheet open={state.isOpen} onOpenChange={toggleCart}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative" aria-label="Cart">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
           <ShoppingCart className="h-4 w-4" />
           {totalItems > 0 && (
             <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
