@@ -17,9 +17,9 @@ export default function SignIn() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    await signInWithEmailAndPassword(auth, email, password)
     try {
       if (user?.emailVerified) {
-        await signInWithEmailAndPassword(auth, email, password)
         router.push("/")
       } else { 
         router.push("/verify")

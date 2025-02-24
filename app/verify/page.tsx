@@ -18,8 +18,8 @@ const VerifyPage = () => {
                 setVerified(true);
                 router.push('/');
             } else {
-                setVerified(false);
-                setLoading(false);
+              setVerified(false);
+              setLoading(false);
             }
         } else { 
             return (

@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createUserWithEmailAndPassword, validatePassword } from "firebase/auth"
-import { auth } from "../lib/firebase"
+import { auth, db } from "../lib/firebase"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { addDoc, collection } from "firebase/firestore"
 
 export default function SignUp() {
   const [email, setEmail] = useState("")
@@ -26,7 +27,24 @@ export default function SignUp() {
     }
     try {
       await createUserWithEmailAndPassword(auth, email, password)
-      router.push("/verify")
+      const id = auth.currentUser?.uid
+      if (!id) {
+        throw new Error("User ID is undefined")
+      }
+      try {
+        await addDoc(collection(db, "users", id), {
+          id,
+          email,
+        })
+      } catch (error) { 
+        setError(`Failed To Create An Account : ${error}`)
+        console.error(error)
+      }
+      if (auth.currentUser?.emailVerified) {
+        router.push("/")
+      } else {
+        router.push("/verify")
+      }
     } catch (error) {
       setError(`Failed To Create An Account : ${error}`)
       console.error(error)

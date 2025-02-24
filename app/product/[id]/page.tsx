@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { Star, ShoppingCart, Heart, Share2, Plus, Minus } from "lucide-react"
-import { collection, doc, getDoc } from "firebase/firestore"
+import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore"
 import { db } from "../../lib/firebase"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CartDropdown } from "../../components/cart-dropdown"
 import { useCart } from "../../contexts/cart-provider"
 import { useRegion } from "@/app/contexts/RegionContext"
+import { getAuth } from "firebase/auth"
+import Link from "next/link"
 
 export default function ProductPage() {
   interface Product {
@@ -28,6 +30,34 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const { getPrice } = useRegion();
   const { id } = useParams();
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const auth = getAuth();
+
+  const handleisFavourite = async () => {
+    setIsFavorited(!isFavorited);
+    const userId = auth.currentUser?.uid;
+    if (userId) {
+      const userDocRef = doc(db, `users`, userId);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        if (!isFavorited) {
+          await updateDoc(userDocRef, {
+            favorites: arrayUnion(id)
+          });
+        } else {
+          await updateDoc(userDocRef, {
+            favorites: arrayRemove(id)
+          });
+        }
+      } else {
+        await setDoc(userDocRef, {
+          favorites: [id]
+        });
+      }
+    }
+  }
 
   useEffect(() => {
     if (id) {
@@ -44,6 +74,42 @@ export default function ProductPage() {
       fetchProduct();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const productsData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          imgURL: data.imgURL,
+          price: data.price,
+        };
+      }).filter(product => product.id !== id); 
+      setRelatedProducts(productsData);
+    };
+
+    fetchProducts();
+  }, [id]);
+
+  useEffect(() => {
+    const checkIfFavorited = async () => {
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        const userDocRef = doc(db, `users`, userId);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          if (userData.favorites && userData.favorites.includes(id)) {
+            setIsFavorited(true);
+          }
+        }
+      }
+    };
+
+    checkIfFavorited();
+  }, [id, auth]);
 
   const handleAddToCart = () => {
     if (product) {
@@ -138,8 +204,8 @@ export default function ProductPage() {
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Add to Cart
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Heart className="h-4 w-4" />
+                <Button variant="outline" size="icon" onClick={handleisFavourite}>
+                  <Heart className={`h-4 w-4 ${isFavorited ? "fill-red-500" : ""}`} />
                 </Button>
                 <Button variant="outline" size="icon">
                   <Share2 className="h-4 w-4" />
@@ -213,27 +279,29 @@ export default function ProductPage() {
       <section className="mt-16">
         <h2 className="text-2xl font-bold mb-6">Users Also Bought</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
+          {relatedProducts.slice(0, 4).map((relatedProduct) => {
+            const { price, currency } = getPrice(relatedProduct.price);
+            return (
+            <Card key={relatedProduct.id}>
               <CardContent className="p-4">
                 <div className="aspect-square relative rounded-lg overflow-hidden mb-4">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PR7OOPaFmnkwUXbV371F3tnrTpRhkx.png"
-                    alt={`Related product ${i + 1}`}
+                    src={relatedProduct.imgURL}
+                    alt={`Related product ${relatedProduct.name}`}
                     fill
                     className="object-cover"
                   />
                 </div>
-                <h3 className="font-medium mb-2">Related Product {i + 1}</h3>
+                <h3 className="font-medium mb-2">{relatedProduct.name}</h3>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold">{currency} {Math.floor(price)}</span>
+                  <span className="font-bold">{currency}{price}</span>
                   <Button variant="outline" size="sm">
-                    View
+                     <Link href={`/product/${relatedProduct.id}`}>View</Link>
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )})}
         </div>
       </section>
     </div>
