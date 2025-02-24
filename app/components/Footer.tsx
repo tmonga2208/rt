@@ -7,18 +7,19 @@ export default function Footer() {
   const date = new Date();
   const year = date.getFullYear();
   const [region, setRegion] = useState("");
-  interface RegionChangeEvent extends React.ChangeEvent<HTMLSelectElement> {}
+  interface RegionChangeEvent extends React.ChangeEvent<HTMLSelectElement> { }
 
   const handleRegionChange = (e: RegionChangeEvent) => {
     setRegion(e.target.value);
     localStorage.setItem("region", e.target.value);
+    window.location.reload();
   };
   useEffect(() => {
     const region = localStorage.getItem("region");
     if (region) {
       setRegion(region);
     }
-   },[]);
+  }, []);
   return (
     <footer className="bg-gray-100 mt-10">
       <div className="container mx-auto px-4 py-8">

@@ -74,7 +74,7 @@ export default function Home() {
 
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-6 font-teko">Featured Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {categories.map((category) => (
             <div key={category.id} className="relative h-64">
               <Image src={category.image} alt={category.name} layout="fill" objectFit="cover" className="rounded-lg" />
@@ -98,7 +98,7 @@ export default function Home() {
               &lt;
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6">
             {currentProducts.map((product) => (
               <div key={product.id} className="border rounded-lg p-4">
                 <Image
